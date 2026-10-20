@@ -2,9 +2,6 @@ from django.db import models
 from django.utils.timezone import now
 from django.conf import settings
 
-# -------------------------------------------------------------
-# Core Base Models (Must stay above Question to avoid NameError)
-# -------------------------------------------------------------
 
 class Instructor(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -40,7 +37,7 @@ class Learner(models.Model):
 
 class Course(models.Model):
     name = models.CharField(null=False, max_length=30, default='online course')
-    image = models.ImageField(upload_to='course_images/')
+    image = models.ImageField(upload_to='course_images/', null=True, blank=True)
     description = models.CharField(max_length=1000)
     pub_date = models.DateField(null=True)
     instructors = models.ManyToManyField(Instructor)
@@ -76,12 +73,10 @@ class Enrollment(models.Model):
     rating = models.FloatField(default=5.0)
 
 
-# -------------------------------------------------------------
-# Final Project Models (Defined AFTER Lesson)
-# -------------------------------------------------------------
+# --- Final Project Assessment Models ---
 
 class Question(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE)
     question_text = models.CharField(max_length=500)
     grade = models.IntegerField(default=1)
 
@@ -96,7 +91,7 @@ class Question(models.Model):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=300)
     is_correct = models.BooleanField(default=False)
 
@@ -105,7 +100,7 @@ class Choice(models.Model):
 
 
 class Submission(models.Model):
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
+    enrollment = models.ForeignKey('Enrollment', on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice)
 
     def __str__(self):
