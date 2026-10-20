@@ -1,5 +1,19 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Course, Enrollment, Question, Choice, Submission
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import Course, Lesson, Enrollment, Question, Choice, Submission
+
+def course_details(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    return render(request, 'onlinecourse/course_details_bootstrap.html', {'course': course})
+
+def enroll(request, course_id):
+    if request.method == 'POST':
+        course = get_object_or_404(Course, pk=course_id)
+        user = request.user
+        if user.is_authenticated:
+            Enrollment.objects.get_or_create(user=user, course=course)
+        return redirect('onlinecourse:course_details', course_id=course.id)
 
 def submit(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
