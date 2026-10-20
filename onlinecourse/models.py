@@ -2,7 +2,29 @@ from django.db import models
 from django.utils.timezone import now
 from django.conf import settings
 
-# Existing models (Course, Lesson, Instructor, Learner, Enrollment, etc.) should remain as they are.
+# --- Keep existing models defined first ---
+
+class Course(models.Model):
+    name = models.CharField(null=False, max_length=30, default='online course')
+    image = models.ImageField(upload_to='course_images/')
+    description = models.CharField(max_length=1000)
+    pub_date = models.DateField(null=True)
+
+    def __str__(self):
+        return f"Name: {self.name}, Description: {self.description}"
+
+
+class Lesson(models.Model):
+    title = models.CharField(max_length=200, default="title")
+    order = models.IntegerField(default=0)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    content = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+
+# --- Define Question, Choice, and Submission AFTER Lesson ---
 
 class Question(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
@@ -29,7 +51,7 @@ class Choice(models.Model):
 
 
 class Submission(models.Model):
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
+    enrollment = models.ForeignKey('Enrollment', on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice)
 
     def __str__(self):
